@@ -213,7 +213,8 @@ if (visits === 2) {
 
     /* 🌙 DAY/NIGHT DETECTION */
     function applyTimeTheme() {
-      const hour = new Date().getHours();
+      const hour = 23; // pretend it's 11pm
+
       
       
       if (hour >= 20 || hour < 6) {
