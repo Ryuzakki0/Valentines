@@ -1,15 +1,12 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Will You Be My Valentine?</title>
 
-
-  
   <style>
     body {
-      
       margin: 0;
       font-family: "Poppins", Arial, sans-serif;
       background: linear-gradient(135deg, #ff9a9e, #fad0c4);
@@ -19,6 +16,12 @@
       height: 100vh;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
+      transition: background 0.6s ease;
+    }
+
+    /* 🌙 Night theme */
+    body.night {
+      background: linear-gradient(135deg, #1e1f3a, #3a1c71);
     }
 
     .container {
@@ -27,6 +30,11 @@
       padding: 40px;
       border-radius: 24px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    body.night .container {
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
     }
 
     .gif {
@@ -40,6 +48,10 @@
       margin-bottom: 20px;
       font-size: clamp(1.5rem, 4vw, 2rem);
       color: #ff4d6d;
+    }
+
+    body.night h1 {
+      color: #ff9ae6;
     }
 
     .buttons {
@@ -112,6 +124,11 @@
       max-width: 80vw;
     }
 
+    body.night .messageBox {
+      background: #111;
+      color: #ff9ae6;
+    }
+
     .coupon {
       background: white;
       color: #ff4d6d;
@@ -121,25 +138,6 @@
       max-width: 320px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.15);
       text-align: center;
-    }
-
-    .coupon .big {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-
-    #redeemBtn {
-      margin-top: 12px;
-      background: #ff4d6d;
-      color: white;
-      font-weight: bold;
-    }
-
-    .redeemed {
-      display: none;
-      margin-top: 12px;
-      font-weight: bold;
     }
 
     .blurred {
@@ -154,7 +152,7 @@
 
   <div class="container" id="questionBox">
     <img src="giphy.gif" class="gif" />
-    <h1>Will you be my Valentine? 💖</h1>
+    <h1 id="titleText">Will you be my Valentine? 💖</h1>
     <div class="buttons">
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
@@ -176,12 +174,14 @@
     <div class="coupon">
       <h2>💝 Valentine Coupon 💝</h2>
       <div id="couponContent" class="blurred">
-        <p class="big">FREE Date Night</p>
+        <p style="font-size:1.5rem;font-weight:bold;">FREE Date Night</p>
         <p>Dinner, cuddles, kisses, and FREE CART?!</p>
       </div>
 
       <button id="redeemBtn">Redeem Coupon</button>
-      <p id="redeemedText" class="redeemed">Coupon Redeemed 💕</p>
+      <p id="redeemedText" style="display:none;margin-top:12px;font-weight:bold;">
+        Coupon Redeemed 💕
+      </p>
     </div>
   </div>
 
@@ -190,6 +190,46 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
+    
+const titleText = document.getElementById("titleText");
+const messageBox = document.getElementById("messageBox");
+
+/* COUNT VISITS */
+let visits = Number(localStorage.getItem("visits") || 0);
+visits++;
+localStorage.setItem("visits", visits);
+
+/* SHOW DIFFERENT MESSAGE BASED ON VISIT */
+if (visits === 2) {
+  setTimeout(() => {
+    showMessage("You came back… I missed you 😛    ");
+  }, 600);
+} else if (visits === 3) {
+  setTimeout(() => {
+    showMessage("Okay jus marry me atp💍");
+  }, 600);
+}
+
+
+    /* 🌙 DAY/NIGHT DETECTION */
+    function applyTimeTheme() {
+      const hour = new Date().getHours();
+      
+      
+      if (hour >= 20 || hour < 6) {
+        document.body.classList.add("night");
+
+        titleText.textContent = "Thinking about me this late?🤔 ";
+
+        setTimeout(() => {
+          showMessage("You should be sleeping… but I'm glad its me on your mind😛");
+        }, 1000);
+      }
+    }
+
+    applyTimeTheme();
+
+    /* EXISTING CODE */
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const yayPage = document.getElementById("yayPage");
@@ -197,7 +237,6 @@
     const continueBtn = document.getElementById("continueBtn");
     const finalPage = document.getElementById("finalPage");
     const game = document.getElementById("game");
-    const messageBox = document.getElementById("messageBox");
     const redeemBtn = document.getElementById("redeemBtn");
     const redeemedText = document.getElementById("redeemedText");
     const couponContent = document.getElementById("couponContent");
@@ -227,7 +266,7 @@
       "i stalk your reposts btw",
       "STOP POSTING SO DAMN MUCH u making me envious smh",
       
-    ];
+      ];
 
     yesBtn.onclick = () => {
       questionBox.style.display = "none";
@@ -243,13 +282,7 @@
       noScale = Math.max(noScale * 0.8, 0.15);
       noBtn.style.transform = `scale(${noScale})`;
 
-      const texts = [
-        "Are you sure?",
-        "Really sure??",
-        "Last chance 😢",
-        "Please...? 😅",
-        "Okay fine... just press Yes 🫩"
-      ];
+      const texts = ["Are you sure?", "Really sure??", "Last chance 😢", "Please...? 😅", "Okay fine... just press Yes 🫩"];
 
       if (noClicks <= texts.length) {
         noBtn.textContent = texts[noClicks - 1];
@@ -268,8 +301,6 @@
         yesBtn.style.width = "100vw";
         yesBtn.style.height = "100vh";
         yesBtn.style.fontSize = "3rem";
-        yesBtn.style.borderRadius = "0";
-        yesBtn.style.transform = "none";
         noBtn.style.display = "none";
       }
     };
@@ -289,30 +320,16 @@
 
     function createHearts() {
       game.innerHTML = "";
-
       const totalHearts = 80;
       const surpriseIndex = Math.floor(Math.random() * totalHearts);
-
-      const cols = 8;
-      const rows = 10;
-      const padding = 40;
-
-      const cellW = (window.innerWidth - padding) / cols;
-      const cellH = (window.innerHeight - padding) / rows;
 
       for (let i = 0; i < totalHearts; i++) {
         const heart = document.createElement("div");
         heart.className = "heart";
         heart.textContent = Math.random() > 0.5 ? "💖" : "💘";
 
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-
-        let x = col * cellW + cellW / 2 + (Math.random() - 0.5) * cellW * 0.6;
-        let y = row * cellH + cellH / 2 + (Math.random() - 0.5) * cellH * 0.6;
-
-        heart.style.left = Math.max(20, Math.min(window.innerWidth - 20, x)) + "px";
-        heart.style.top = Math.max(20, Math.min(window.innerHeight - 20, y)) + "px";
+        heart.style.left = Math.random() * 90 + "vw";
+        heart.style.top = Math.random() * 90 + "vh";
 
         heart.onclick = () => {
           if (i === surpriseIndex) {
@@ -345,11 +362,6 @@
         if (Date.now() < end) requestAnimationFrame(frame);
       })();
     }
-
-    window.addEventListener("resize", () => {
-      if (game.style.display === "flex") createHearts();
-    });
   </script>
 </body>
 </html>
-
